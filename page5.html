@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .page span {
+            float: left;
+            width: 60px;
+            height: 30px;
+            background-color: bisque;
+            line-height: 30px;
+            text-align: center;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .page ul {
+            float: left;
+            overflow: hidden;
+        }
+
+        .page ul li {
+            float: left;
+            width: 30px;
+            height: 30px;
+            list-style: none;
+            background-color: blanchedalmond;
+            margin-left: 10px;
+            text-align: center;
+            box-sizing: border-box;
+            line-height: 30px;
+        }
+
+        .page ul li:hover {
+            border: 1px solid brown;
+            line-height: 28px;
+        }
+
+        .page .selected {
+            background-color: brown
+        }
+
+        .page .disabled {
+            background-color: darkgray
+        }
+
+        .page {
+            -webkit-user-select: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- <span class="prev">上一页</span>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+        </ul>
+        <span class="next">下一页</span> -->
+    </div>
+</body>
+<script>
+    function Page(ele, opt) {
+        this.target = document.querySelector(ele)
+        this.pageIndex = 0
+        this.option = {
+            allcount: 100,
+            pagenum: 10,
+            shownum: 5,
+            callback: function (a) {
+               
+            }
+        }
+        this.create()
+        this.extend(opt)
+        this.bindData()
+        this.bindEvent()
+    }
+    Page.prototype.extend = function (opt) {
+        for (var i in opt) {
+            this.option[i] = opt[i]
+        }
+    }
+    Page.prototype.bindEvent = function () {
+        var that = this
+        this.prevevent = this.prevBtn.onclick = function () {
+            if (that.pageIndex <= 1) {
+                that.prevBtn.className = "disabled"
+                that.prevBtn.onclick = null
+            }
+            that.pageIndex--
+            that.bindData()
+            if (that.pageIndex <= that.endpagenum - 2) {
+                that.nextBtn.onclick = that.nextevent
+                that.nextBtn.className = ""
+            }
+        }
+        this.nextevent = this.nextBtn.onclick = function () {
+            if (that.pageIndex >= that.endpagenum - 2) {
+                that.nextBtn.className = "disabled"
+                that.nextBtn.onclick = null
+            }
+            that.pageIndex++
+            that.bindData()
+            if (that.pageIndex >= 1) {
+                that.prevBtn.onclick = that.prevevent
+                that.prevBtn.className = ""
+            }
+        }
+
+        this.prevBtn.onclick = null
+        this.prevBtn.className = "disabled"
+    }
+    Page.prototype.bindData = function () {
+        var start;
+        var end;
+        this.content.innerHTML = ""
+        var that = this
+        this.endpagenum = Math.ceil(this.option["allcount"] / this.option["pagenum"])
+        var shownum = this.option["shownum"]
+        var middlenum = Math.ceil(shownum / 2)
+        if (this.endpagenum < shownum) {
+            this.endpagenum = shownum
+        } else {
+            this.endpagenum = this.endpagenum
+        }
+
+        if (shownum % 2 != 0) {
+            if (this.pageIndex < middlenum) {
+                start = 1
+            } else {
+                start = this.pageIndex - (middlenum - 1) + 1
+            }
+            if (this.pageIndex < middlenum) {
+                end = shownum
+            } else {
+                end = this.pageIndex + (middlenum - 1) + 1
+            }
+            if (this.pageIndex > this.endpagenum - middlenum) {
+                start = this.endpagenum - shownum + 1
+                end = this.endpagenum
+            }
+        } else {
+            if (this.pageIndex <= middlenum-1) {
+                start = 1
+            } else {
+                start = this.pageIndex - (middlenum - 1)
+            }
+            if (this.pageIndex < middlenum) {
+                end = shownum
+            } else {
+                end = this.pageIndex + (middlenum - 1) + 1
+            }
+            if (this.pageIndex > this.endpagenum - middlenum) {
+                start = this.endpagenum - shownum + 1
+                end = this.endpagenum
+            }
+        }
+
+
+
+        for (var i = start; i <= end; i++) {
+            var li = document.createElement("li")
+            li.innerHTML = i
+            if (this.pageIndex * 1 + 1 == i) {
+                li.className = "selected"
+            }
+            this.content.appendChild(li)
+            li.onclick = function () {
+                that.pageIndex = this.innerHTML * 1 - 1
+                that.bindData()
+            }
+        }
+
+        this.option["callback"](this.pageIndex)
+
+    }
+
+
+    Page.prototype.create = function () {
+        this.prevBtn = document.createElement("span")
+        this.prevBtn.innerHTML = "上一页"
+        this.target.appendChild(this.prevBtn)
+
+        this.content = document.createElement("ul")
+        this.target.appendChild(this.content)
+
+        this.nextBtn = document.createElement("span")
+        this.nextBtn.innerHTML = "下一页"
+        this.target.appendChild(this.nextBtn)
+    }
+
+
+    new Page(".page",
+        {
+            allcount: 100,
+            pagenum: 10,
+            shownum: 4,
+            callback: function (a) {
+                // alert(a)
+            }
+        }
+    )
+</script>
+
+</html>
